@@ -49,7 +49,7 @@ if (mode == "update-all-widgets") {
 if (mode == "update-core") {
     var request = require(__dirname + "/request");
     var fs = require("fs");
-    var unzip = require("unzip");
+    var unzip = require("unzipper");
     request.get("https://codeload.github.com/brainfoolong/rcon-web-admin/zip/master", true, function (contents) {
         if (!contents.length) {
             console.error("Cannot load rcon-web-admin zip file");
@@ -57,7 +57,7 @@ if (mode == "update-core") {
             return;
         }
         var dir = __dirname + "/..";
-        fs.writeFile(dir + "/master.zip", contents, {"mode": 0o777}, function () {
+        fs.writeFile(dir + "/master.zip", contents, { "mode": 0o777 }, function () {
             fs.createReadStream(dir + "/master.zip").pipe(unzip.Parse()).on('entry', function (entry) {
                 var fileName = entry.path.split("/").slice(1).join("/");
                 if (!fileName.length) return;

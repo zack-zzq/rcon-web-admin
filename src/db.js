@@ -1,6 +1,7 @@
 "use strict";
 
-var Low = require("lowdb");
+var low = require("lowdb");
+var FileSync = require("lowdb/adapters/FileSync");
 var fs = require("fs");
 var hash = require(__dirname + "/hash");
 
@@ -19,8 +20,15 @@ db._defaults = {
     "servers": {},
     "settings": {},
     "users": {},
-    "widgets": {"list": []}
+    "widgets": { "list": [] }
 };
+
+/**
+ * Cache for db instances
+ * @type {object}
+ * @private
+ */
+db._cache = {};
 
 /**
  * Get lowdb instance
@@ -32,14 +40,34 @@ db.get = function (file, folder) {
     var path = __dirname + '/../db';
     if (folder) path += "/" + folder;
     path += "/" + file + ".json";
-    var inst = Low(path);
-    // if getting settings than set some defaults
-    if (typeof db._defaults[file] != "undefined") {
-        if (file == "settings") {
-            db._defaults[file].salt = hash.random(64);
-        }
-        inst.defaults(db._defaults[file]).value();
+
+    // Use cached instance if available
+    if (db._cache[path]) {
+        return db._cache[path];
     }
+
+    // Ensure directory exists
+    var dir = require("path").dirname(path);
+    if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+    }
+
+    // Create adapter and db instance
+    var adapter = new FileSync(path);
+    var inst = low(adapter);
+
+    // Set defaults if defined
+    if (typeof db._defaults[file] != "undefined") {
+        var defaults = Object.assign({}, db._defaults[file]);
+        if (file == "settings") {
+            defaults.salt = hash.random(64);
+        }
+        inst.defaults(defaults).write();
+    }
+
+    // Cache the instance
+    db._cache[path] = inst;
+
     return inst;
 };
 

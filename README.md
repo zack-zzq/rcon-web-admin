@@ -1,107 +1,178 @@
-### Project discontinued
-I've initially created RCON Web Admin but now this repository is out of date. Other people have taken over development of this project. 
-This fork is actively maintained -> https://github.com/rcon-web-admin/rcon-web-admin
+# RCON 控制面板
 
-# RCON Web Admin
+一个功能强大的 RCON 服务器管理 Web 界面。支持所有 RCON 服务器。
 
-RCON Web Admin as a powerful web interface to control your RCON server. Every RCON server will work.
+可在服务器、树莓派或任何 24/7 在线的设备上运行。即使您没有连接到界面，它也会自动执行所有任务。
 
-The most powerful feature is that this web admin can run on a server, raspberry pi or another device that is online 24/7. It does all jobs for you, even if you are not connected to the interface. You can install it almost everywhere.
+## 功能特性
 
-So imagine you've set-up rcon web admin so that it check users for high ping, VAC status or chat filter. The RCON web admin does it 24/7 for you, no need to have a tool opened all the time.
+- 通过浏览器进行完整的服务器管理
+- 支持无限数量的服务器
+- 强大的组件系统
+- 响应式现代设计
+- 多语言界面
+- 组件一键安装
 
-## Features
+## 支持的游戏
 
-* Full administration via your browser, it's just a website
-* Unlimited users and servers, Admin roles can manage servers, users can use the dashboard
-* Ever more fine granulated user permissions to restrict access to specific server commands and interface features. If you want a user that only can use the 'say' command, you can do it.
-* Powerful widget system - Developers can add new features for the dashboard easily
-* Responsible - The frontend is designed for every device, desktop or smartphone.
-* Run on every device that can install *node.js*
-* Multilanguage interface
-* One-Click update for the core and all installed widgets
-* rcon.web support (Even better as normal RCON sockets because of better stability)
-* Core widgets and their top features
-  * Console - Provide a console interface to directly use rcon web commands in the most low level form
-  * Autobot - For advanced users, a programmatic interface to write your own little code with high level features
-  * Rustboard - A dedicated widget for the game 'Rust', provides a lot usefull tools such as playerlist, banlist, chat, kick/ban/admins/mods, steam information incl. VAC ban checks, and a lot more
-  * Timed Commands - As the name say, you can easily schedule any server command you want to execute on a specific date or time.
-* So many more... Give it a try
+- Rust（测试最多）
+- Counter-Strike: GO
+- Minecraft
+- 其他支持 RCON 的游戏服务器
 
-## Supported/tested games
+---
 
-* Rust (Most tested at the moment)
-* Counter-Strike: Go (Basic tests with the console widget)
-* Minecraft (Basic tests with the console widget)
-* Note: Every other RCON supporting game server will work, it's just untested but console widget is generic for all games
+## 使用 Docker 快速启动（推荐）
 
-## Widgets 
-The widgets are powerful, they deserve an extra header here. All dashboard things are written in widgets. From the simplest to the most powerful tool, widgets are the way to go. They are some sort of "High level" programs inside the rcon web admin. You don't have to dig much into the code to write widgets. It's basically HTML and JS.
+### 使用 Docker Compose
 
-## Requirements
-- NodeJS min. v5.10.0
+```bash
+# 克隆仓库
+git clone https://github.com/zack-zzq/rcon-web-admin.git
+cd rcon-web-admin
 
-## Installation Windows
-* Download and install node.js (https://nodejs.org)
-* Download zip repository and unpack wherever you want
-* Open command line and goto unpacked folder (root of the application where the `package.json` is)
+# 使用 Docker Compose 启动
+docker-compose up -d
+```
 
-Run following commands
+访问 Web 界面：`http://localhost:4326`
 
-    npm install
-    node src/main.js install-core-widgets
-    
-## Installation Linux
-Just run all of this commands in the shell. **Note**: Never run this application as root via `sudo`, it is not required. Also never install this application in a webserver directory than can be accessed from the web. The application create an own webserver with limited access to the public folder.
+### 直接使用 Docker
 
-    sudo apt-get install nodejs npm
-    sudo npm update npm -g
-    wget https://codeload.github.com/brainfoolong/rcon-web-admin/zip/master -O rcon-web-admin.zip
-    unzip rcon-web-admin.zip
-    mv rcon-web-admin-master rcon-web-admin
-    cd rcon-web-admin
-    npm install
-    node src/main.js install-core-widgets
-    chmod 0755 -R startscripts *
-    
-## Installation Raspberry pi
-Same as linux. You may not be able to run the server or `npm install`, or even the node modules do not download. This will be because of a very old npm/nodejs version (for old raspberry pi for example). So you have to update nodejs and npm to a new version. **Warning**: This will delete old nodejs and npm installation. Make some backups before you do this.
+```bash
+# 从 GitHub Container Registry 拉取镜像
+docker pull ghcr.io/brainfoolong/rcon-web-admin:latest
 
-    sudo apt-get purge nodejs npm
-    ## Pi2 | wget https://nodejs.org/dist/v6.9.3/node-v6.9.3-linux-armv7l.tar.xz -O node.tar.xz
-    ## Pi A/A+, B/B+ und Zero (ARMv6) | wget https://nodejs.org/dist/v6.9.3/node-v6.9.3-linux-armv6l.tar.xz -O node.tar.xz
-    tar -xvf node.tar.xz
-    cd node-v6.9.3-linux-armv*
+# 运行容器
+docker run -d \
+  --name rcon-web-admin \
+  -p 4326:4326 \
+  -p 4327:4327 \
+  -v rcon-db:/app/db \
+  -v rcon-logs:/app/logs \
+  --restart unless-stopped \
+  ghcr.io/zack-zzq/rcon-web-admin:latest
+```
 
-## Installation Docker
-[itzg](https://hub.docker.com/r/itzg/) have made a great docker container for rcon web admin. If you prefer docker, you can do it with https://hub.docker.com/r/itzg/rcon/
-    
-## Start/Stop on Linux
+### Docker Compose 配置示例
 
-    sh startscripts/start-linux.sh start
-    sh startscripts/start-linux.sh stop
-    sh startscripts/start-linux.sh restart
-    
-## Start/Stop on Windows - Close cmd window to close
+```yaml
+version: '3.8'
 
-    startscripts/start-windows.bat
-    
-## Open in browser
-Goto: http://yourserverip:4326 (You can also use your hostname instead of ip).
-To modify the :4326 port or allowed hosts, have a look in the `config.template.js` file in the root folder.
+services:
+  rcon-web-admin:
+    image: ghcr.io/zack-zzq/rcon-web-admin:latest
+    container_name: rcon-web-admin
+    restart: unless-stopped
+    ports:
+      - "4326:4326"  # Web 界面
+      - "4327:4327"  # WebSocket
+    volumes:
+      - rcon-db:/app/db
+      - rcon-logs:/app/logs
+      # 可选：自定义配置
+      # - ./config.js:/app/config.js:ro
 
-## Boot scripts
+volumes:
+  rcon-db:
+  rcon-logs:
+```
 
-On linux you can start the rcon web admin with your server start. For example on ubuntu you can simply add a `crontab -e` line. Do this with the user you want to start the script with, not `sudo`.
-    
-    @reboot /path/to/startscripts/start-linux.sh start
+### 本地构建
 
-## Widget developers
+```bash
+# 构建镜像
+docker build -t rcon-web-admin .
 
-Goto https://github.com/brainfoolong/rcon-web-admin/tree/master/public/widgets for more information.
+# 运行
+docker-compose up -d
+```
 
-## Troubleshooting
+---
 
-Linux: If you've installed it and `node` as not available but `nodejs` is, than create a symlink with 
+## 手动安装
 
-    sudo ln -s `which nodejs` /usr/bin/node    
+### 环境要求
+
+- Node.js >= 16.x
+
+### Windows
+
+1. 下载并安装 [Node.js](https://nodejs.org)
+2. 下载/克隆此仓库
+3. 运行以下命令：
+
+```bash
+npm install
+node src/main.js install-core-widgets
+node src/main.js start
+```
+
+### Linux
+
+```bash
+sudo apt-get install nodejs npm
+git clone https://github.com/zack-zzq/rcon-web-admin.git
+cd rcon-web-admin
+npm install
+node src/main.js install-core-widgets
+chmod 0755 -R startscripts
+```
+
+### Linux 启动/停止
+
+```bash
+sh startscripts/start-linux.sh start
+sh startscripts/start-linux.sh stop
+sh startscripts/start-linux.sh restart
+```
+
+### Windows 启动
+
+```bash
+startscripts/start-windows.bat
+```
+
+---
+
+## 访问
+
+在浏览器中打开：`http://您的服务器IP:4326`
+
+如需修改端口或允许的主机，请参阅 `config.template.js`。
+
+---
+
+## 配置
+
+将 `config.template.js` 复制为 `config.js` 并根据需要修改：
+
+```javascript
+var config = {
+    "host": null,           // 绑定到特定主机（null = 所有）
+    "websocketUrlSsl": null, // 代理设置的 WSS URL
+    "websocketUrl": null,    // 代理设置的 WS URL  
+    "port": 4326            // Web 界面端口（WebSocket = 端口 + 1）
+};
+```
+
+---
+
+## 组件
+
+组件提供强大的仪表盘功能：
+
+- **Console** - 直接 RCON 命令界面
+- **Autobot** - 自动化编程接口
+- **Rustboard** - Rust 游戏专用工具
+- **Timed Commands** - 定时服务器命令
+
+---
+
+## 许可证
+
+MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+
+## 致谢
+
+原作者：[BrainFooLong](https://github.com/brainfoolong)

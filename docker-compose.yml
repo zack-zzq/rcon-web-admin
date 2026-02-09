@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  rcon-web-admin:
+    build: .
+    image: ghcr.io/${GITHUB_REPOSITORY:-rcon-web-admin}:latest
+    container_name: rcon-web-admin
+    restart: unless-stopped
+    ports:
+      - "4326:4326"  # Web interface
+      - "4327:4327"  # WebSocket
+    volumes:
+      # Persist database and logs
+      - rcon-db:/app/db
+      - rcon-logs:/app/logs
+      # Optional: custom config file
+      # - ./config.js:/app/config.js:ro
+    environment:
+      - NODE_ENV=production
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4326/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  rcon-db:
+    driver: local
+  rcon-logs:
+    driver: local

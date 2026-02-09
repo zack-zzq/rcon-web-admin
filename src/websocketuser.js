@@ -88,20 +88,14 @@ function WebSocketUser(socket) {
                                         return;
                                     }
                                     if (widget.id === messageData.widget) {
-                                        sendCallback({"widgetMessageData": widgetMessageData});
+                                        sendCallback({ "widgetMessageData": widgetMessageData });
                                     }
                                 }
                             );
                         }
                         break;
                     case "view":
-                        if (!db.get("users").size().value()) {
-                            // if no user exist, force user admin panel
-                            messageData.view = "users";
-                        } else if (self.userData === null) {
-                            // if not logged in, force login page
-                            messageData.view = "login";
-                        }
+                        // Auth removed - no login redirect needed
                         var View = require(__dirname + "/views/" + messageData.view);
                         View(self, messageData, function (viewData) {
                             if (!viewData) viewData = {};
@@ -131,17 +125,17 @@ function WebSocketUser(socket) {
                                     }
                                 }
                                 if (found) {
-                                    sendCallback({"note": {"message": "server.cmd.restricted", "type": "danger"}});
+                                    sendCallback({ "note": { "message": "server.cmd.restricted", "type": "danger" } });
                                     return;
                                 }
                             }
                             self.server.injectServerMessage("> " + messageData.cmd, self);
                             self.server.cmd(messageData.cmd, self, true, function (serverMessage) {
-                                sendCallback({"message": serverMessage});
+                                sendCallback({ "message": serverMessage });
                             });
                             return;
                         }
-                        sendCallback({"error": {"message": "Not connected to RCON server"}});
+                        sendCallback({ "error": { "message": "Not connected to RCON server" } });
                         break;
                     case "closed":
                         WebSocketUser.instances.splice(self.id, 1);
@@ -168,26 +162,20 @@ function WebSocketUser(socket) {
             }
         };
 
-        // everytime a request comes in, validate the user
-        // after that go ahead with message processing
-        var users = db.get("users").get().cloneDeep().value();
-        // invalidate userdata and check against stored users
-        self.userData = null;
-        if (frontendData.loginHash && frontendData.loginName) {
-            var userData = db.get("users").find({
-                "username": frontendData.loginName,
-                "loginHash": frontendData.loginHash
-            }).cloneDeep().value();
-            if (userData) {
-                self.userData = userData;
-                // add instance of this is a complete new user
-                if (self.id === null) {
-                    self.id = WebSocketUser.instances.length;
-                    WebSocketUser.instances.push(self);
-                }
-                verificationDone();
-                return;
-            }
+        // Auth removed - all users are automatically admin
+        // Create admin user data for all connections
+        self.userData = {
+            id: 'auto-admin',
+            username: 'admin',
+            admin: true,
+            restrictcommands: '',
+            restrictwidgets: '',
+            readonlyoptions: false
+        };
+        // add instance if this is a completely new user
+        if (self.id === null) {
+            self.id = WebSocketUser.instances.length;
+            WebSocketUser.instances.push(self);
         }
         verificationDone();
     };
@@ -229,7 +217,7 @@ function WebSocketUser(socket) {
      * @returns {object}
      */
     this.toJSON = function () {
-        return {"username": this.userData.username};
+        return { "username": this.userData.username };
     };
 }
 

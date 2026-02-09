@@ -60,7 +60,7 @@ function Widget(id) {
         for (var i = 0; i < WebSocketUser.instances.length; i++) {
             var user = WebSocketUser.instances[i];
             if (!user || !user.server) continue;
-            user.send("widgetBackendMessage", {"server": user.server.id, "widget": self.id, "message": message});
+            user.send("widgetBackendMessage", { "server": user.server.id, "widget": self.id, "message": message });
         }
     };
 
@@ -257,7 +257,7 @@ Widget.widgetIds = null;
  * @param {function=} callback
  */
 Widget.install = function (repository, callback) {
-    var unzip = require("unzip");
+    var unzip = require("unzipper");
     var dir = fs.realpathSync(__dirname + "/../public/widgets");
     dir = dir.replace(/\\/g, "/");
     if (repository.match(/^https/)) {
@@ -281,7 +281,7 @@ Widget.install = function (repository, callback) {
                 callback(false);
                 return;
             }
-            fs.writeFile(repoDir + "/master.zip", contents, {"mode": 0o777}, function () {
+            fs.writeFile(repoDir + "/master.zip", contents, { "mode": 0o777 }, function () {
                 fs.createReadStream(repoDir + "/master.zip").pipe(unzip.Parse()).on('entry', function (entry) {
                     var fileName = entry.path.split("/").slice(1).join("/");
                     if (!fileName.length) return;
@@ -429,7 +429,7 @@ Widget.updateAllActive = function () {
         for (var i = 0; i < WebSocketUser.instances.length; i++) {
             var user = WebSocketUser.instances[i];
             if (!user || !user.server) continue;
-            user.send("widgetUpdateDone", {"server": user.server.id});
+            user.send("widgetUpdateDone", { "server": user.server.id });
         }
     } catch (e) {
         console.error(new Date(), "Widget update all active error", e);

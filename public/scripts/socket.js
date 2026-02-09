@@ -56,9 +56,9 @@ Socket.sendQueue = function () {
 Socket.connect = function (callback) {
     var cb = function () {
         var url = 'ws://' + window.location.hostname + ':' + Socket.config.port
-        if(location.protocol === 'https:' && Socket.config.sslUrl !== null){
+        if (location.protocol === 'https:' && Socket.config.sslUrl !== null) {
             url = Socket.config.sslUrl
-        } else if(Socket.config.url !== null){
+        } else if (Socket.config.url !== null) {
             url = Socket.config.url
         }
         var con = new WebSocket(url);
@@ -70,12 +70,6 @@ Socket.connect = function (callback) {
             Socket.con = con;
             // send init ping to backend
             Socket.send("init", null, function (messageData) {
-                if (messageData.package.version) {
-                    $(".app-version").text(messageData.package.version);
-                    if (messageData.latestVersion && messageData.latestVersion != messageData.package.version) {
-                        $(".top-logo .update").removeClass("hidden");
-                    }
-                }
                 if (callback) callback(messageData);
                 Socket.sendQueue();
             });
@@ -199,9 +193,8 @@ Socket.send = function (action, messageData, callback) {
     var data = {
         "action": action,
         "callbackId": Socket.callbacks.length,
-        "messageData": messageData,
-        "loginName": Storage.get("loginName"),
-        "loginHash": Storage.get("loginHash")
+        "messageData": messageData
+        // Auth removed - no login credentials needed
     };
     Socket.callbacks.push(receiveCallback);
     Socket.con.send(JSON.stringify(data));

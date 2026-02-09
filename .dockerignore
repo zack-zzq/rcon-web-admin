@@ -1,0 +1,11 @@
+# Add .dockerignore to optimize Docker builds
+node_modules
+npm-debug.log
+.git
+.gitignore
+.idea
+*.md
+!README.md
+logs/*
+db/*
+*.zip
