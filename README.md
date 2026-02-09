@@ -41,7 +41,7 @@ docker-compose up -d
 
 ```bash
 # 从 GitHub Container Registry 拉取镜像
-docker pull ghcr.io/brainfoolong/rcon-web-admin:latest
+docker pull ghcr.io/zack-zzq/rcon-web-admin:latest
 
 # 运行容器
 docker run -d \

@@ -14,10 +14,6 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Create non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodejs -u 1001
-
 # Copy node_modules from builder
 COPY --from=builder /app/node_modules ./node_modules
 
@@ -27,12 +23,13 @@ COPY src ./src
 COPY public ./public
 COPY config.template.js ./
 
-# Create directories for data persistence
-RUN mkdir -p db logs && \
-    chown -R nodejs:nodejs /app
+# Create directories for data persistence with proper permissions
+# Run as root to set up directories, then switch to node user
+RUN mkdir -p /app/db /app/logs && \
+    chown -R node:node /app
 
-# Switch to non-root user
-USER nodejs
+# Switch to built-in node user (uid 1000)
+USER node
 
 # Expose ports (web interface: 4326, websocket: 4327)
 EXPOSE 4326 4327
